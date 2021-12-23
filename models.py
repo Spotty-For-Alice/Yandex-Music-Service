@@ -3,8 +3,8 @@ from datetime import datetime
 from sqlalchemy.dialects.postgresql import UUID
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from db.pg_db import db
-from models.mixins import BaseModelMixin
+from pg_db import db
+from mixins import BaseModelMixin
 
 
 class User(db.Model, BaseModelMixin):
@@ -14,6 +14,7 @@ class User(db.Model, BaseModelMixin):
     password = db.Column(db.String, nullable=False)
     created_at = db.Column(db.DateTime(), default=datetime.utcnow)
     updated_at = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
+    yandex_id = db.Column(db.String, unique=True, nullable=False)
     history = db.relationship('History', backref='user')
     access_token = db.Column(db.String, nullable=True)
     spotify_playlist_id = db.Column(db.String, nullable=True)
@@ -35,7 +36,8 @@ class User(db.Model, BaseModelMixin):
             self.spotify_playlist_id = uid
         else:
             self.apple_playlist_id = uid
-        self.save()
+        db.session.add(self)
+        db.session.commit()
 
     def __str__(self):
         return f'<User {self.login}>'
