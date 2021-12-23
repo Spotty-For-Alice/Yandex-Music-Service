@@ -1,8 +1,7 @@
 import uuid
 
 from sqlalchemy.dialects.postgresql import UUID
-
-from db.pg_db import db
+from pg_db import db
 
 
 class BaseModelMixin(object):

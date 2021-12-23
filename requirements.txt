@@ -34,4 +34,5 @@ flask-redis==0.4.0
 flasgger==0.9.5
 grpcio-tools==1.42.0
 rauth==0.7.2
+python-decouple
 
