@@ -4,6 +4,7 @@ from models import User
 from schemas import UserRegisterSchema, SynchronizeTracksSchema
 from yandex_music import Client
 from yandex_music.exceptions import YandexMusicError
+from marshmallow import ValidationError
 from flask import Blueprint
 from pg_db import db
 
@@ -12,7 +13,10 @@ yandex = Blueprint('yandex', __name__)
 
 @yandex.route('/register', methods=['POST'])
 def register():
-    user = UserRegisterSchema().load(request.get_json())
+    try:
+        user = UserRegisterSchema().load(request.get_json())
+    except ValidationError as err:
+        return jsonify(err.messages), 400
     try:
         yandex_user = Client.fromCredentials(username=user.login,
                                              password=user.password)
@@ -22,22 +26,28 @@ def register():
             'message': f'Ошибка при попытке авторизации',
         }), HTTPStatus.BAD_REQUEST
     user.access_token = yandex_user.token
-    if user.login == "yaroslav.jr":
-        user.yandex_id = "750943882C3B0073337EEBDC0BF7CE09B77A8C679CB6E43D47EF4980A0DA4EBE"
+    user.yandex_id = ""
     db.session.add(user)
     db.session.commit()
     return jsonify({
         'status': 'ok',
         'message': f'Пользователь успешно зарегистрирован',
-        'yandexId': user.yandex_id,
+        'yandex_login': user.login,
     }), HTTPStatus.CREATED
 
 
 @yandex.route('/synchronize_tracks', methods=['POST'])
 def synchronize_tracks():
-    data = request.get_json()
-    synchronize_info = SynchronizeTracksSchema().load(data)
-    user = User.query.filter_by(yandex_id=synchronize_info['yandexId']).first()
+    try:
+        synchronize_info = SynchronizeTracksSchema().load(request.get_json())
+    except ValidationError as err:
+        return jsonify(err.messages), 400
+    user = User.query.filter_by(login=synchronize_info['username']).first()
+    # if not user:
+    #     return jsonify({
+    #         'status': 'error',
+    #         'message': f'Пользователь не найден',
+    #     }), HTTPStatus.NOT_FOUND
     yandex_client = Client.fromToken(user.access_token)
 
     playlist = yandex_client.users_playlists_create(title=synchronize_info['name'])
@@ -55,7 +65,6 @@ def synchronize_tracks():
         for artist in artists['artists']['results']:
             artist_tracks = yandex_client.artists_tracks(artist_id=artist['id'],
                                                          page_size=300)
-
             if check:
                 break
             for artist_track in artist_tracks:

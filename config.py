@@ -12,3 +12,11 @@ class Config:
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+
+class Testing:
+    HOST = os.getenv('APP_HOST')
+    SQLITE = 'sqlite:////tmp/test.db'
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+    SQLALCHEMY_TRACK_MODIFICATIONS = False

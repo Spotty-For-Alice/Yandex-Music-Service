@@ -15,6 +15,6 @@ def validate_user_exist(login):
 
 
 def validate_exist_user_by_id(user_id):
-    user = User.query.filter_by(yandex_id=user_id).first()
+    user = User.query.filter_by(login=user_id).first()
     if not user:
-        raise ValidationError(f"Пользователь с id={user_id} не существует")
+        raise ValidationError(f"Пользователь с username={user_id} не существует")
