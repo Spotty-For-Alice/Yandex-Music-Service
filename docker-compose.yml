@@ -1,0 +1,18 @@
+services:
+  db-k:
+    platform: linux/amd64
+    image: postgres:14
+    env_file:
+      - ./.env
+
+  auth-k:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - ./.env
+    ports:
+      - 8000:8000
+    depends_on:
+      - db-k

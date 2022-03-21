@@ -14,11 +14,10 @@ jobs:
           with:
             python-version: 3.9
 
-        - name: "Install dependencies"
+        - name: "docker-compose up"
           run: |
-            python -m pip install --upgrade pip
-            pip install -r requirements.txt
+            docker-compose up -d
 
         - name: "Run tests"
           run: |
-            python -m tests
+            docker exec yandex_music_service_auth-k_1 python tests.py
