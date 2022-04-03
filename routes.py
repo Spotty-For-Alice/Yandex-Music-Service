@@ -36,6 +36,23 @@ def register():
     }), HTTPStatus.CREATED
 
 
+@yandex.route('/test-register', methods=['POST'])
+def test_register():
+    return jsonify({
+        'status': 'ok',
+        'message': f'Пользователь успешно зарегистрирован',
+        'yandex_login': 'test_user',
+    }), HTTPStatus.CREATED
+
+
+@yandex.route('/test-synchronize-tracks', methods=['POST'])
+def test_synchronize_tracks():
+    return jsonify({
+        'status': 'ok',
+        'message': f'Треки успешно синхронизированы',
+    }), HTTPStatus.CREATED
+
+
 @yandex.route('/synchronize_tracks', methods=['POST'])
 def synchronize_tracks():
     try:
